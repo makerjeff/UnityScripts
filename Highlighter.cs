@@ -1,7 +1,8 @@
-﻿//====================
-//= HIGHLIGHTER v0.1 =
-//====================
+﻿//========================
+//= HIGHLIGHTER v0.1 GIT =
+//========================
 // use this to highlight an object
+// just changed this file to test out Git.
 
 using UnityEngine;
 using System.Collections;
