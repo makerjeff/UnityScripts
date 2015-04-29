@@ -1,4 +1,14 @@
-﻿using UnityEngine;
+﻿/*========================
+ * Simple Highlighter 0.1
+ * =======================
+ * 2015.APR.29: 
+ * - initial git commit
+ * - quick and dirty highlighter, no timing involved.
+ *
+
+ */
+
+using UnityEngine;
 using System.Collections;
 
 public class SimpleHighlight : MonoBehaviour {
@@ -9,6 +19,9 @@ public class SimpleHighlight : MonoBehaviour {
 	private Renderer myRend;	//current object's renderer
 	
 	public bool isHighlighted = false;	//is this object highlighted?
+
+	private int currentTime = 0;
+	private int holdTime = 60;	//60 frames hold time
 
 	// Use this for initialization
 	void Start () {
@@ -26,7 +39,10 @@ public class SimpleHighlight : MonoBehaviour {
 	void Update () {
 
 		if(isHighlighted == true) {
-			highlightMe ();
+//			holdTime += 1;
+//			if (currentTime == holdTime){
+				highlightMe ();
+//			}
 		}
 		else {
 			unHighlightMe();
