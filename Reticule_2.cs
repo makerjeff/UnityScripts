@@ -1,9 +1,10 @@
 ﻿/*===================
- * Reticule 2.0 v0.2
+ * Reticule 2.0 v0.3
  *===================
  * 2015.APR.27: initial GIT commit
  * 2015.APR.27: updating on macbook air
  * apply this one to FPS controller
+ * 2015.APR.29: adding lerping 
 
  */
 
@@ -57,19 +58,34 @@ public class Reticule_2 : MonoBehaviour {
 		if(Physics.Raycast (this.transform.position, this.transform.forward, out myHit, rayLength)) {
 
 			if(debugOn == true) {
-				Debug.Log ("Point: " + myHit.point + "Distance: " + myHit.distance);
+				Debug.Log ("Point: " + myHit.point + "Distance: " + myHit.distance + ", ObjectHit: " + myHit.collider);
 			}
 
 			// change the position of the reticule
 			reticule.SetActive(true);
-			reticule.transform.position = myHit.point;
+			//reticule.transform.position = myHit.point; //deprecated
 			reticule.transform.LookAt(this.transform.position);
+
+			// switch this on as a test
+			reticule.transform.position = Vector3.Lerp(this.transform.position, myHit.point, 0.5f);
+
+			//test to see if there's something in myHit
+			if(myHit.collider.gameObject.tag == "highlightable"){
+				//highlight the hit object
+				myHit.collider.gameObject.GetComponent<SimpleHighlight>().isHighlighted = true;
+			}
+
 		}
 		else {
 			//if raycast hits nothing, move this guy back to origin
 			reticule.transform.position = origin;
 			reticule.SetActive(false);
+
+			//highlight the hit object
+			//myHit.collider.gameObject.GetComponent<SimpleHighlight>().isHighlighted = false;
 		}
+
+
 	
 	}
 }
