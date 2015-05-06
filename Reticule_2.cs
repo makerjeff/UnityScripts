@@ -75,7 +75,7 @@ public class Reticule_2 : MonoBehaviour {
 			reticule.transform.LookAt(this.transform.position);
 
 			// switch this on as a test
-			reticule.transform.position = Vector3.Lerp(this.transform.position, myHit.point, 0.5f);
+			reticule.transform.position = Vector3.Lerp(this.transform.position, myHit.point, reticulePosition);
 
 			//test to see if there's something in myHit
 			if(myHit.collider.gameObject.tag == "highlightable"){
