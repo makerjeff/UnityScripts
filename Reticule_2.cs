@@ -1,10 +1,16 @@
 ﻿/*===================
- * Reticule 2.0 v0.3
+ * Reticule 2.0 v0.5
  *===================
  * 2015.APR.27: initial GIT commit
  * 2015.APR.27: updating on macbook air
  * apply this one to FPS controller
- * 2015.APR.29: adding lerping 
+ * 2015.APR.29: adding lerping
+ * 2015.MAY.02: cleaning up, 
+ * 		moving reticule back to surface of object, 
+ * 		adding new reticule shader
+ * 2015.MAY.06 (v0.5)
+ * 	- adding external control for reticule 'lerp'
+ * 
 
  */
 
@@ -21,7 +27,6 @@ public class Reticule_2 : MonoBehaviour {
 
 	//FPS controller
 	public GameObject reticule;
-	
 
 	//my color
 	private Color myColor = new Color(0f, 1.0f, 00f, 0.75f);
@@ -36,6 +41,9 @@ public class Reticule_2 : MonoBehaviour {
 
 	// store the hit location's data
 	private RaycastHit myHit;
+
+	// == adjustables ==
+	public float reticulePosition = 0.5f;	//0.5 is halfway between hit point and cast point
 	
 	// Use this for initialization
 	void Start () {
