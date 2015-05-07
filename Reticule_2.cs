@@ -1,9 +1,14 @@
 ﻿/*===================
- * Reticule 2.0 v0.6
+ * Reticule 2.0 v0.7
  *===================
  *
  *ChangeLog:
  *
+ * 2015.MAY.06 (v0.7);
+ * 	- adding a timer and integrating Grabber.cs
+ * 	functionality. If it becomes too unweildly,
+ * 	then I'll consider breaking it out to it's own script.
+ * 	- added code folding with regions
  * 2015.MAY.06 (v0.6):
  *	- attempting to add rotation control for reticule here,
  *		instead of external Rotator_Y script
@@ -25,6 +30,8 @@ using System.Collections;
 
 public class Reticule_2 : MonoBehaviour {
 
+	#region VARIABLES
+
 	//DEBUG VARS
 	public bool debugOn = false; // if this switch is on, all the debug messages will fire to the console
 	
@@ -45,6 +52,15 @@ public class Reticule_2 : MonoBehaviour {
 	//private float reticuleCurrentSpeed;	//stores the current rotation
 	private Vector3 originalRotation;
 
+	// == GRABBER VARS ==
+	private Vector3 targetOriginalLocation;	// buffers original target location (updated per frame)
+	public GameObject handObject;	// what is the hand object
+	private Vector3 handLocation;	// vector3 position of hand object
+	public float targetHoldTime;	// target hold time
+	private float currentHoldTime;	// buffer current hold time
+
+	#endregion
+
 	// Use this for initialization
 	void Start () {
 
@@ -57,8 +73,10 @@ public class Reticule_2 : MonoBehaviour {
 
 		//set reticule size
 		reticule.transform.localScale = new Vector3(reticuleSize, reticuleSize, reticuleSize);
-		//load default reticule rotation to reset to
-		originalRotation = new Vector3 (270, 180,0);
+		originalRotation = new Vector3 (270, 180,0);	//set default reticule rotation
+
+		//test hold timer
+		currentHoldTime = 0.0f;
 	
 	}
 	
@@ -90,9 +108,13 @@ public class Reticule_2 : MonoBehaviour {
 
 				//highlight the hit object: DEPRECATED 2015.MAY.06, these actions moving to Grabber.cs
 				//myHit.collider.gameObject.GetComponent<SimpleHighlight>().isHighlighted = true;
+
+				//increase timer
+				increaseTimer();
 			}
 			else {
 				resetReticule();
+				resetTimer();
 			}
 		}
 
@@ -101,10 +123,14 @@ public class Reticule_2 : MonoBehaviour {
 			reticuleHolder.transform.position = origin;
 			reticuleHolder.SetActive(false);	//disable reticuleHolder
 			resetReticule();	//resets reticule rotation
+
+			currentHoldTime = 0.0f;
 		}
 	}
 
 	// == CUSTOM FUNCTIONS ==
+
+	#region RETICULE_FUNCTIONS
 
 	//spin the reticule at designated speed
 	void spinReticule(float maxSpeed) {
@@ -116,11 +142,28 @@ public class Reticule_2 : MonoBehaviour {
 	void resetReticule() {
 		reticule.gameObject.transform.localEulerAngles = originalRotation;
 		//reset global speed
-//		reticuleCurrentSpeed = 0.0f;
+		//reticuleCurrentSpeed = 0.0f;
+	}
+	#endregion
+
+	#region GRABBER_FUNCTIONS
+	//== GRABBER FUNCTIONS ==
+
+	void increaseTimer() {
+		//count up in seconds
+		currentHoldTime += Time.deltaTime;
+		Debug.Log ("currentHoldTime: " + currentHoldTime);	//visualize in console
 	}
 
+	void resetTimer() {
+		//reset timer to 0.0f
+		currentHoldTime = 0.0f;
+	}
+	// -- END GRABBER FUNCTIONS --
+	#endregion
 
-	//== Helper functions
+	#region HELPER_FUNCTIONS
+	//== HELPER FUNCTIONS ==
 	//debug every thing
 	void debugAll(GameObject obj) {
 		Debug.Log ("GameObject:" + obj);
@@ -147,6 +190,8 @@ public class Reticule_2 : MonoBehaviour {
 	void debugScale (GameObject obj) {
 		Debug.Log ("GameObject: " + obj + ", LocalScale: " + obj.transform.localScale);
 	}
+	// -- END HELPER FUNCTIONS --
+	#endregion
 
 	 
 
