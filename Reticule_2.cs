@@ -1,9 +1,14 @@
-﻿/*===================
- * Reticule 2.0 v0.7
+﻿#region DESCRIPTION
+/*===================
+ * Reticule 2.0 v0.71
  *===================
  *
  *ChangeLog:
  *
+ * 2015.MAY.07 (v0.71):
+ * 	- attempting to replace debug Highlighting 
+ * 	with object 'Grabbing'. Might incorporate a 
+ * 	"pickup" script.
  * 2015.MAY.06 (v0.7);
  * 	- adding a timer and integrating Grabber.cs
  * 	functionality. If it becomes too unweildly,
@@ -24,6 +29,7 @@
  * 2015.APR.27: initial GIT commit
 
  */
+#endregion
 
 using UnityEngine;
 using System.Collections;
@@ -57,7 +63,13 @@ public class Reticule_2 : MonoBehaviour {
 	public GameObject handObject;	// what is the hand object
 	private Vector3 handLocation;	// vector3 position of hand object
 	public float targetHoldTime;	// target hold time
-	private float currentHoldTime;	// buffer current hold time
+	private float currentPickupHoldTime;	// buffer current hold time (for pickup)
+	private float currentDropHoldTime;		// buffer current hold time (for drop)
+
+	public bool handsFull = false;	//am i already holding something?
+	public GameObject objectInHand;	//what am i holding?
+
+	// == DEBUG VARS ==
 
 	#endregion
 
@@ -75,8 +87,13 @@ public class Reticule_2 : MonoBehaviour {
 		reticule.transform.localScale = new Vector3(reticuleSize, reticuleSize, reticuleSize);
 		originalRotation = new Vector3 (270, 180,0);	//set default reticule rotation
 
-		//test hold timer
-		currentHoldTime = 0.0f;
+		//initialize timers to zero
+		currentPickupHoldTime = 0.0f;
+		currentDropHoldTime = 0.0f;
+
+
+		//Initialize Grabber variables
+		handLocation = handObject.transform.position;
 	
 	}
 	
@@ -104,17 +121,20 @@ public class Reticule_2 : MonoBehaviour {
 			if(myHit.collider.gameObject.tag == "Pickup"){
 
 				spinReticule(rotationSpeed);
-				//debugRotation(myHit.collider.gameObject);
-
-				//highlight the hit object: DEPRECATED 2015.MAY.06, these actions moving to Grabber.cs
-				//myHit.collider.gameObject.GetComponent<SimpleHighlight>().isHighlighted = true;
-
 				//increase timer
-				increaseTimer();
+				increasePickupTimer();
 			}
+
+			else if(myHit.collider.gameObject.tag == "DropArea" && handsFull == true) {
+				spinReticule(rotationSpeed);
+				increaseDropTimer();
+				dropItem();
+			}
+
 			else {
 				resetReticule();
-				resetTimer();
+				resetPickupTimer();
+				resetDropTimer();
 			}
 		}
 
@@ -124,8 +144,14 @@ public class Reticule_2 : MonoBehaviour {
 			reticuleHolder.SetActive(false);	//disable reticuleHolder
 			resetReticule();	//resets reticule rotation
 
-			currentHoldTime = 0.0f;
+			//resets all hold times
+			currentPickupHoldTime = 0.0f;
+			currentDropHoldTime = 0.0f;
 		}
+
+		//see if this works
+		//testGrab();
+		grabItem();
 	}
 
 	// == CUSTOM FUNCTIONS ==
@@ -149,15 +175,100 @@ public class Reticule_2 : MonoBehaviour {
 	#region GRABBER_FUNCTIONS
 	//== GRABBER FUNCTIONS ==
 
-	void increaseTimer() {
-		//count up in seconds
-		currentHoldTime += Time.deltaTime;
-		Debug.Log ("currentHoldTime: " + currentHoldTime);	//visualize in console
+	void increasePickupTimer() {
+		//count up the Pickup Timer
+		currentPickupHoldTime += Time.deltaTime;
+		Debug.Log ("currentPickupHoldTime: " + currentPickupHoldTime);	//visualize in console
 	}
 
-	void resetTimer() {
-		//reset timer to 0.0f
-		currentHoldTime = 0.0f;
+	void resetPickupTimer() {
+		//reset Pickup timer to 0.0f
+		currentPickupHoldTime = 0.0f;
+	}
+
+	void increaseDropTimer() {
+		//count up the Drop timer
+		currentDropHoldTime += Time.deltaTime;
+		Debug.Log ("CurrentDropHoldTime: " + currentDropHoldTime);
+	}
+
+	void resetDropTimer() {
+		//reset Drop timer to 0.0f
+		currentDropHoldTime = 0.0f;
+	}
+
+
+
+	void testGrab() {
+		if (currentPickupHoldTime >= targetHoldTime && myHit.collider.gameObject.tag == "Pickup") {
+			Debug.Log ("Timer has been hit!");
+
+			//if object isn't already highlighted, highlight the object we've been "hitting on"
+			if(myHit.collider.gameObject.GetComponent<SimpleHighlight>().isHighlighted == false) {
+				myHit.collider.gameObject.GetComponent<SimpleHighlight>().isHighlighted = true;
+				resetPickupTimer();
+			}
+			//if the object is already highlighted, return it back to it's original shader
+			else if (myHit.collider.gameObject.GetComponent<SimpleHighlight>().isHighlighted == true) {
+				myHit.collider.gameObject.GetComponent<SimpleHighlight>().isHighlighted = false;
+				resetPickupTimer();
+			}
+		}
+	}
+
+	void grabItem() {
+		//if timer builds up to
+		if (currentPickupHoldTime >= targetHoldTime && myHit.collider.gameObject.tag == "Pickup") {
+			Debug.Log ("Timer has been hit!");
+			
+			if(handsFull == false) {
+				//store current location of target pick up object
+				targetOriginalLocation = myHit.collider.transform.position;
+
+				// move current Pickup object to 'hand' position
+				myHit.collider.transform.position = handObject.transform.position;
+
+				// set parent to handLocation
+				myHit.collider.transform.parent = handObject.transform;
+
+				//set handsFull to 'true'
+				handsFull = true;
+
+				//update what's in my hand
+				objectInHand = myHit.collider.gameObject;
+				Debug.Log ("Grabbed " + objectInHand);
+
+				resetDropTimer();
+			}
+
+			else if(handsFull == true) {
+				//error message"
+				Debug.Log ("Your hands are full! Drop your object before attempting to pickup another");
+			}
+		}
+	}
+
+	void dropItem() {
+
+		if (currentDropHoldTime >= targetHoldTime && myHit.collider.gameObject.tag == "DropArea") {
+			// message output
+			Debug.Log ("Dropping the shit.");
+
+			//return Picked up object to where you picked it up
+			objectInHand.transform.position = targetOriginalLocation;
+
+			// return parent to game world
+			objectInHand.transform.parent = null;
+
+			// nothing is in hand anymore
+			objectInHand = null;
+
+			//set 'hands full' to false
+			handsFull = false;
+
+			resetPickupTimer();	// to mitigate the flashing
+
+		}
 	}
 	// -- END GRABBER FUNCTIONS --
 	#endregion
