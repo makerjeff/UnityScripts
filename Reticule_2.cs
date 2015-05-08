@@ -1,10 +1,13 @@
 ﻿#region DESCRIPTION
 /*===================
- * Reticule 2.0 v0.71
+ * Reticule 2.0 v0.72
  *===================
  *
  *ChangeLog:
  *
+ * 2015.MAY.08 (v0.72):
+ * 	- debugging VR tests, updating to FixedUpdate()
+ * 	over Update()
  * 2015.MAY.07 (v0.71):
  * 	- attempting to replace debug Highlighting 
  * 	with object 'Grabbing'. Might incorporate a 
@@ -98,7 +101,7 @@ public class Reticule_2 : MonoBehaviour {
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	void FixedUpdate () {
 		//visible ray
 		Debug.DrawRay(this.transform.position, this.transform.forward * rayLength, myColor);
 
