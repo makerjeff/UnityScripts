@@ -1,10 +1,13 @@
 ﻿#region DESCRIPTION
 /*===================
- * Reticule 2.0 v0.72
+ * Reticule 2.0 v0.75
  *===================
  *
  *ChangeLog:
  *
+ * 2015.MAY.18 (v0.75):
+ * 	- adding fixed reticule size checkbox
+ * 	and functionality.
  * 2015.MAY.08 (v0.72):
  * 	- debugging VR tests, updating to FixedUpdate()
  * 	over Update()
@@ -61,6 +64,10 @@ public class Reticule_2 : MonoBehaviour {
 	//private float reticuleCurrentSpeed;	//stores the current rotation
 	private Vector3 originalRotation;
 
+	// static reticule variables
+	public Vector3 editorScale;	//stores the current set editor size
+
+
 	// == GRABBER VARS ==
 	private Vector3 targetOriginalLocation;	// buffers original target location (updated per frame)
 	public GameObject handObject;	// what is the hand object
@@ -89,6 +96,9 @@ public class Reticule_2 : MonoBehaviour {
 		//set reticule size
 		reticule.transform.localScale = new Vector3(reticuleSize, reticuleSize, reticuleSize);
 		originalRotation = new Vector3 (270, 180,0);	//set default reticule rotation
+
+		//set starting reticule size
+		editorScale = reticuleHolder.transform.localScale;
 
 		//initialize timers to zero
 		currentPickupHoldTime = 0.0f;
@@ -119,6 +129,9 @@ public class Reticule_2 : MonoBehaviour {
 
 			// switch this on as a test
 			reticuleHolder.transform.position = Vector3.Lerp(this.transform.position, myHit.point, reticuleDepth);
+
+			//set reticule scale
+			reticuleHolder.transform.localScale = editorScale * reticuleSize * myHit.distance;
 
 			//test to see if there's something in myHit
 			if(myHit.collider.gameObject.tag == "Pickup"){
